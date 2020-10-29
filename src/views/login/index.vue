@@ -1,7 +1,14 @@
 <template>
   <div class="login-container">
     <!-- 导航 -->
-    <van-nav-bar class="page-nav-bar" title="登录" />
+    <van-nav-bar class="page-nav-bar" title="登录">
+      <van-icon
+        class="back-btn"
+        slot="left"
+        name="cross"
+        @click="$router.back()"
+      />
+    </van-nav-bar>
     <!-- 表单 -->
     <van-form @submit="onSubmit" ref="userFormRef">
       <!-- 手机号输入框 -->
@@ -52,13 +59,15 @@
         </van-button>
       </div>
     </van-form>
+    <p>万能账号：13911111111</p>
+    <p>万能验证码：246810</p>
   </div>
 </template>
 
 <script>
 import { login, sendMsg } from '@/api/user'
 export default {
-  name: 'LoginIndex',
+  name: 'loginIndex',
   data() {
     return {
       user: {
@@ -93,6 +102,7 @@ export default {
         this.$store.commit('setUser', data.data)
         console.log(this.$store.state.user)
         this.$toast.success('登录成功！')
+        this.$router.push('/')
       } catch (err) {
         if (err.response.status === 400) {
           this.$toast.fail('手机或验证码错误')
@@ -146,6 +156,14 @@ export default {
   .login-btn {
     background-color: #6db4fb;
     border: none;
+  }
+  .back-btn {
+    color: #fff;
+  }
+  p {
+    font-size: 15px;
+    color: #ccc;
+    text-align: center;
   }
 }
 </style>
