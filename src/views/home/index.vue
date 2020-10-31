@@ -1,7 +1,7 @@
 <template>
   <div class="home-container">
     <!-- 导航 -->
-    <van-nav-bar class="page-nav-bar">
+    <van-nav-bar class="page-nav-bar" fixed>
       <van-button slot="title" type="info" size="small" round icon="search"
         >搜索</van-button
       >
@@ -12,8 +12,9 @@
         :title="channel.name"
         v-for="channel in channels"
         :key="channel.id"
-        >{{ channel.name }}的内容</van-tab
       >
+        <article-list :channel="channel"></article-list>
+      </van-tab>
       <div slot="nav-right" class="placeholder"></div>
       <div slot="nav-right" class="hamburger-box">
         <i class="iconfont icongengduo"></i>
@@ -24,6 +25,7 @@
 
 <script>
 import { getUserChannels } from '@/api/user'
+import ArticleList from './component/index'
 export default {
   name: 'homeIndex',
   data() {
@@ -35,11 +37,15 @@ export default {
   created() {
     this.loadUserChannels()
   },
+  components: {
+    ArticleList
+  },
   methods: {
     async loadUserChannels() {
       try {
         const { data } = await getUserChannels()
         this.channels = data.data.channels
+        console.log('获取面板', data)
       } catch (err) {
         this.$toast('获取频道失败！')
       }
@@ -50,6 +56,7 @@ export default {
 
 <style lang="less" scoped>
 .home-container {
+  padding-bottom: 100px;
   .page-nav-bar {
     .van-button {
       width: 555px;
@@ -66,6 +73,15 @@ export default {
   /deep/.choose-tabs {
     .van-tabs__wrap {
       height: 82px;
+      overflow: hidden;
+      position: fixed;
+      top: 92px;
+      z-index: 1;
+      left: 0;
+      right: 0;
+    }
+    .van-tabs__content {
+      margin-top: 176px;
     }
     .van-tab {
       min-width: 200px;
