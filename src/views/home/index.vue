@@ -15,30 +15,51 @@
       >
         <article-list :channel="channel"></article-list>
       </van-tab>
+      <!-- 汉堡按钮底层站位 -->
       <div slot="nav-right" class="placeholder"></div>
-      <div slot="nav-right" class="hamburger-box">
+      <!-- 汉堡按钮  -->
+      <div slot="nav-right" class="hamburger-box" @click="showEdit">
         <i class="iconfont icongengduo"></i>
       </div>
     </van-tabs>
+    <!-- 编辑面板弹出层 -->
+    <van-popup
+      v-model="isEdit"
+      closeable
+      close-icon-position="top-left"
+      position="bottom"
+      :style="{ height: '100%' }"
+    >
+      <channel-edit
+        :fixChannels="isEdit"
+        :active="active"
+        :my-channels="channels"
+        @to-channel="toActiveChannel"
+        @change-active="changeActive"
+      ></channel-edit>
+    </van-popup>
   </div>
 </template>
 
 <script>
 import { getUserChannels } from '@/api/user'
-import ArticleList from './component/index'
+import ArticleList from './component/articleList'
+import ChannelEdit from './component/channelEdit'
 export default {
   name: 'homeIndex',
   data() {
     return {
       active: 0,
-      channels: []
+      channels: [],
+      isEdit: false
     }
   },
   created() {
     this.loadUserChannels()
   },
   components: {
-    ArticleList
+    ArticleList,
+    ChannelEdit
   },
   methods: {
     async loadUserChannels() {
@@ -49,6 +70,16 @@ export default {
       } catch (err) {
         this.$toast('获取频道失败！')
       }
+    },
+    showEdit() {
+      this.isEdit = true
+    },
+    toActiveChannel(index) {
+      this.active = index
+      this.isEdit = false
+    },
+    changeActive() {
+      this.active = this.active - 1
     }
   }
 }
@@ -78,13 +109,16 @@ export default {
       top: 92px;
       z-index: 1;
       left: 0;
-      right: 0;
+      right: 1px;
+      .van-tabs__nav {
+        padding-left: 0;
+      }
     }
     .van-tabs__content {
       margin-top: 176px;
     }
     .van-tab {
-      min-width: 200px;
+      min-width: 180px;
       font-size: 30px;
       color: #777;
       border-right: 1px solid #edeff3;
@@ -103,10 +137,11 @@ export default {
       display: flex;
       justify-content: center;
       align-items: center;
-      opacity: 0.902;
+      opacity: 1;
       right: 0;
       width: 66px;
       height: 82px;
+      background-color: #fff;
       i.iconfont {
         font-size: 33px;
       }
