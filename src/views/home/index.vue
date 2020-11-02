@@ -2,7 +2,13 @@
   <div class="home-container">
     <!-- 导航 -->
     <van-nav-bar class="page-nav-bar" fixed>
-      <van-button slot="title" type="info" size="small" round icon="search"
+      <van-button
+        slot="title"
+        type="info"
+        size="small"
+        round
+        icon="search"
+        to="/search"
         >搜索</van-button
       >
     </van-nav-bar>
