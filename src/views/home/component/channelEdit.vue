@@ -54,7 +54,9 @@
 </template>
 
 <script>
-import { getAllChannels } from '@/api/channel'
+import { getAllChannels, addMyChannel, deleteMyChannel } from '@/api/channel'
+import { mapState } from 'vuex'
+import { setItem } from '@/utils/storage'
 export default {
   name: 'ChannelEdit',
   props: {
@@ -81,6 +83,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['user']),
     recommendChannels() {
       return this.allChannels.filter(channel => {
         return !this.myChannels.find(myChannel =>
@@ -102,9 +105,25 @@ export default {
         this.$toast('获取频道失败')
       }
     },
-    addToMyChannels(channel) {
+    // 添加我的频道
+    async addToMyChannels(channel) {
       this.myChannels.push(channel)
+      // 数据真实化，持久化-------已登录、未登录
+      if (this.user) {
+        try {
+          const { data } = await addMyChannel({
+            id: channel.id,
+            seq: this.myChannels.length
+          })
+          console.log('添加成功', data)
+        } catch (err) {
+          this.$toast('添加失败，请稍后再试！')
+        }
+      } else {
+        setItem('TOUTIAO_UNLOADED_CHANNEL', this.myChannels)
+      }
     },
+    // 删除我的频道
     editMyChannels(channel, index) {
       // 编辑状态
       if (this.isEdit) {
@@ -113,10 +132,22 @@ export default {
         }
         this.myChannels.splice(index, 1)
         if (index <= this.active) this.$emit('change-active')
-        console.log(this.isEdit)
+        console.log('是否编辑状态：', this.isEdit)
+        this.removeMychannel(channel.id)
       } else {
         // 非编辑状态
         this.$emit('to-channel', index)
+      }
+    },
+    async removeMychannel(channelId) {
+      if (this.user) {
+        try {
+          await deleteMyChannel(channelId)
+        } catch (err) {
+          this.$toast('删除失败，请稍后再试！')
+        }
+      } else {
+        setItem('TOUTIAO_UNLOADED_CHANNEL', this.myChannels)
       }
     }
   }

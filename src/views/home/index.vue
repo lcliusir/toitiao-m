@@ -45,6 +45,8 @@
 import { getUserChannels } from '@/api/user'
 import ArticleList from './component/articleList'
 import ChannelEdit from './component/channelEdit'
+import { mapState } from 'vuex'
+import { getItem } from '@/utils/storage'
 export default {
   name: 'homeIndex',
   data() {
@@ -57,16 +59,33 @@ export default {
   created() {
     this.loadUserChannels()
   },
+  computed: {
+    ...mapState(['user'])
+  },
   components: {
     ArticleList,
     ChannelEdit
   },
   methods: {
     async loadUserChannels() {
+      let channels = []
       try {
-        const { data } = await getUserChannels()
-        this.channels = data.data.channels
-        console.log('获取面板', data)
+        if (this.user) {
+          // 已登录
+          const { data } = await getUserChannels()
+          channels = data.data.channels
+        } else {
+          const localChannels = getItem('TOUTIAO_UNLOADED_CHANNEL')
+          if (localChannels) {
+            // 未登录，本地有数据
+            channels = localChannels
+          } else {
+            // 未登录，本地无数据
+            const { data } = await getUserChannels()
+            channels = data.data.channels
+          }
+        }
+        this.channels = channels
       } catch (err) {
         this.$toast('获取频道失败！')
       }
