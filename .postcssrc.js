@@ -13,7 +13,8 @@ module.exports = {
         return file.indexOf('vant') === -1 ? 75 : 37.5
       },
       // 配置需要转换的css 属性
-      propList: ['*']
+      propList: ['*'],
+      exclude: 'github-markdown'
     }
   }
 }
