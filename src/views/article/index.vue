@@ -46,13 +46,25 @@
           ref="articleContentRef"
         ></div>
         <van-divider>正文结束</van-divider>
+        <!-- 评论组件 -->
+        <comment-list
+          :source="articleInfo.art_id"
+          @comments-loaded="CommentsCount = $event.data.total_count"
+          :list="commentList"
+          @reply-click="replyClick"
+        />
         <!-- 底部区域 -->
         <!-- 评论 -->
         <div class="article-bottom">
-          <van-button class="comment-btn" type="default" round size="small"
+          <van-button
+            class="comment-btn"
+            type="default"
+            round
+            size="small"
+            @click="isPopupShow = true"
             >写评论</van-button
           >
-          <van-icon name="comment-o" badge="666" color="#777" />
+          <van-icon name="comment-o" :badge="CommentsCount" color="#777" />
           <!-- 收藏 -->
           <collect-article
             v-model="articleInfo.is_collected"
@@ -66,6 +78,14 @@
           <!-- 转发 -->
           <van-icon name="share" color="#777777"></van-icon>
         </div>
+
+        <!-- 评论弹出框 -->
+        <van-popup v-model="isPopupShow" position="bottom" closeable>
+          <comment-post
+            :targetId="articleInfo.art_id"
+            @post-success="postSuccess"
+          />
+        </van-popup>
         <!-- /底部区域 -->
       </div>
       <!-- /加载完成-文章详情 -->
@@ -87,6 +107,20 @@
       </div>
       <!-- /加载失败：其它未知错误（例如网络原因或服务端异常） -->
     </div>
+    <!-- 回复评论弹出层 -->
+    <!-- 弹出层  有懒加载问题 -->
+    <van-popup
+      v-model="isReplyShow"
+      position="bottom"
+      :style="{ height: '100%' }"
+      closeable
+    >
+      <comment-reply
+        v-if="isReplyShow"
+        :comment="currentComment"
+        @close="isReplyShow = false"
+      />
+    </van-popup>
   </div>
 </template>
 
@@ -96,12 +130,18 @@ import { ImagePreview } from 'vant'
 import FollowUser from '@/components/follow-user'
 import CollectArticle from '@/components/collect-article'
 import LikeArticle from '@/components/like-article'
+import CommentList from './components/comment-list'
+import CommentPost from './components/comment-post'
+import CommentReply from './components/comment-replay'
 export default {
   name: 'ArticleIndex',
   components: {
     FollowUser,
     CollectArticle,
-    LikeArticle
+    LikeArticle,
+    CommentList,
+    CommentPost,
+    CommentReply
   },
   props: {
     articleId: {
@@ -114,7 +154,17 @@ export default {
       articleInfo: {},
       loading: true,
       status: 0, // 控制加载失败的两个面板
-      followLoading: false
+      followLoading: false, // 的
+      CommentsCount: 0, // 评论计数
+      isPopupShow: false, // 评论文章弹出层
+      commentList: [], // 评论列表数据
+      isReplyShow: false,
+      currentComment: {} // 当前回复的评论对象
+    }
+  },
+  provide: function () {
+    return {
+      articleId: this.articleId
     }
   },
   computed: {},
@@ -159,6 +209,16 @@ export default {
           })
         }
       })
+    },
+    postSuccess(data) {
+      // 关闭弹出层
+      this.isPopupShow = false
+      // 更新视图
+      this.commentList.unshift(data.new_obj)
+    },
+    replyClick(comment) {
+      this.currentComment = comment
+      this.isReplyShow = true
     }
   }
 }
