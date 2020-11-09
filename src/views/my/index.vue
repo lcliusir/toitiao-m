@@ -8,12 +8,12 @@
             fit="cover"
             class="avatar"
             round
-            src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3378510438,3944975970&fm=26&gp=0.jpg"
+            src="https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2233431505,2282541580&fm=26&gp=0.jpg"
           />
           <span class="username">{{ userInfo.name }}</span>
         </div>
         <div class="right">
-          <van-button size="mini" round>编辑资料</van-button>
+          <van-button size="mini" to="/user/profile" round>编辑资料</van-button>
         </div>
       </div>
       <div class="data-stats">
